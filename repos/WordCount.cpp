@@ -27,12 +27,12 @@ void WordCount::insert(const std::vector<std::tuple<int, int, int> > &records) {
 				std::to_string(std::get<2>(rec)) + ")";
 			delim = comma;
 		}
-		db.db.createQuery(insertSQL).execute();
+		db.impl.createQuery(insertSQL).execute();
 	}
 };
 
 std::vector<std::tuple<int, int, int> > WordCount::list(int docId) {
-	auto resultList = db.db.createQuery(R"*(
+	auto resultList = db.impl.createQuery(R"*(
 		select w.id, wc.count, w.df 
 		from wordcount wc, word w 
 		where wc.word     = w.id 
@@ -59,7 +59,7 @@ std::vector<int> WordCount::listDocuments(
 		delim = comma;
 	}
 
-	auto resultList = db.db.createQuery(
+	auto resultList = db.impl.createQuery(
 			"select distinct document from wordcount where word in (" + selectSQL + ");").getResult();
 
 	std::vector<int> result;

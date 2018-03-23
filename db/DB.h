@@ -27,7 +27,7 @@ public:
 	DB(const std::string &dbName, bool ddl = false);
 	DBTransaction startTransaction();
 private:
-	SQLiteDB db;
+	SQLiteDB impl;
 	std::string dbName;
 	void DDL();
 };

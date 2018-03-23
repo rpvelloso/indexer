@@ -22,7 +22,7 @@ Word::Word(DB &db) : db(db) {
 };
 
 void Word::fetch(int id) {
-	auto result = db.db.createQuery("select id, word, df from word where id = ?", id).getResult();
+	auto result = db.impl.createQuery("select id, word, df from word where id = ?", id).getResult();
 	if (result.next()) {
 		result.fetch(
 			this->id,
@@ -32,22 +32,22 @@ void Word::fetch(int id) {
 };
 
 void Word::fetch(const std::string &word) {
-	auto result = db.db.createQuery("select id, word, df from word where word = ?", word).getResult();
+	auto result = db.impl.createQuery("select id, word, df from word where word = ?", word).getResult();
 	if (result.next()) {
 		result.fetch(
 			this->id,
 			this->word,
 			this->df);
 	} else {
-		db.db.createQuery("insert into word (word, df) values (?, 0);", word).execute();
-		this->id = db.db.lastInsertRowID();
+		db.impl.createQuery("insert into word (word, df) values (?, 0);", word).execute();
+		this->id = db.impl.lastInsertRowID();
 		this->word = word;
 		this->df = 0;
 	}
 };
 
 void Word::update() {
-	db.db.createQuery("update word set df = ? where id = ?;", df, id).execute();
+	db.impl.createQuery("update word set df = ? where id = ?;", df, id).execute();
 }
 
 const std::string &Word::getWord() const {
@@ -76,7 +76,7 @@ std::vector<std::pair<int, int> > Word::list(const std::vector<int> &wordIdList)
 		selectSQL += delim + std::to_string(wid);
 		delim = comma;
 	}
-	auto resultList = db.db.createQuery("select id, df from word where id in (" + selectSQL + ");").getResult();
+	auto resultList = db.impl.createQuery("select id, df from word where id in (" + selectSQL + ");").getResult();
 	std::vector<std::pair<int, int> > result;
 	while (resultList.next()) {
 		int id, df;

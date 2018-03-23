@@ -10,31 +10,31 @@
 namespace idx {
 
 DB::DB(const std::string &dbName, bool ddl) :
-	db(dbName),
+	impl(dbName),
 	dbName(dbName) {
 	if (ddl)
 		DDL();
 }
 
 DBTransaction DB::startTransaction() {
-	return db.startTransaction();
+	return impl.startTransaction();
 }
 
 void DB::DDL() {
-	db.createQuery(R"*(
+	impl.createQuery(R"*(
 		create table document (
 		  id integer primary key,
 		  uri varchar
 		);)*").execute();
 
-	db.createQuery(R"*(
+	impl.createQuery(R"*(
 		create table word (
 		  id integer primary key,
 		  word varchar unique not null,
 		  df integer not null default 0
 		);)*").execute();
 
-	db.createQuery(R"*(	
+	impl.createQuery(R"*(	
 		create table wordcount (
 		  document integer not null,
 		  word integer not null,
@@ -44,8 +44,8 @@ void DB::DDL() {
 		  foreign key(document) references document(id)
 		);)*").execute();
 
-	db.createQuery("create index reverseWCPK on wordcount (word, document);").execute();
-	db.createQuery("create index documentURI on document (uri);").execute();
+	impl.createQuery("create index reverseWCPK on wordcount (word, document);").execute();
+	impl.createQuery("create index documentURI on document (uri);").execute();
 }
 
 

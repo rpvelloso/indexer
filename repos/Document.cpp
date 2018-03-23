@@ -22,7 +22,7 @@ Document::Document(DB &db) : db(db) {
 };
 
 void Document::fetch(int id) {
-	auto result = db.db.createQuery("select id, uri from document where id = ?", id).getResult();
+	auto result = db.impl.createQuery("select id, uri from document where id = ?", id).getResult();
 	if (result.next()) {
 		result.fetch(
 			this->id,
@@ -36,19 +36,19 @@ void Document::fetch(const std::string &uri) {
 			this->id,
 			this->uri);
 	} else {*/
-		db.db.createQuery("insert into document (uri) values (?);", uri).execute();
-		this->id = db.db.lastInsertRowID();
+		db.impl.createQuery("insert into document (uri) values (?);", uri).execute();
+		this->id = db.impl.lastInsertRowID();
 		this->uri = uri;
 	//}
 };
 
 void Document::clean() {
-	db.db.createQuery(R"*(
+	db.impl.createQuery(R"*(
 		update word set df=df-1 where id in (
 		select word from wordcount where document = ?);
 	)*", id).execute();
 
-	db.db.createQuery("delete from wordcount where document = ?;", id).execute();
+	db.impl.createQuery("delete from wordcount where document = ?;", id).execute();
 };
 
 const std::string &Document::getURI() const {
@@ -61,7 +61,7 @@ int Document::getID() const {
 
 int Document::count() {
 	int n;
-	auto result = db.db.createQuery("select count(*) from document;").getResult();
+	auto result = db.impl.createQuery("select count(*) from document;").getResult();
 	result.next();
 	result.fetch(n);
 	return n;
