@@ -17,7 +17,8 @@ namespace idx {
 
 enum class HTTPReply {
 	OK = 200,
-	NOTFOUND = 404
+	NOTFOUND = 404,
+	INTERNALSERVERERROR = 500
 };
 
 class HTTPClient {

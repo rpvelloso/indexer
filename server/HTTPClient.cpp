@@ -12,7 +12,8 @@
 
 static std::unordered_map<int, std::string> replyStr = {
 	{200, "OK"},
-	{404, "Not Found."}
+	{404, "Not Found."},
+	{500, "Internal Server Error."}
 };
 
 
@@ -45,6 +46,8 @@ const std::string& HTTPClient::getBody() const {
 }
 
 void HTTPClient::parseHeaders(std::ostream& outp) {
+	reply = HTTPReply::NOTFOUND;
+
 	if (headers.size() > 0) {
 		std::string methodStr;
 		std::stringstream ss(headers[0]);
@@ -62,15 +65,19 @@ void HTTPClient::parseHeaders(std::ostream& outp) {
 				if (serviceIt != (*services)[(int)method].end()) {
 					auto service = serviceIt->second;
 
-					json input = json::parse(body);
+					try {
+						reply = HTTPReply::OK;
+						json input = json::parse(body);
 
-					service(*this, input, outp);
-					return;
+						service(*this, input, outp);
+						return;
+					} catch (...) {
+						reply = HTTPReply::INTERNALSERVERERROR;
+					}
 				}
 			}
 		}
 	}
-	reply = HTTPReply::NOTFOUND;
 	outputResponse(outp);
 }
 
