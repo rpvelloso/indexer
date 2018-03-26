@@ -24,7 +24,7 @@ public:
 	int index(
 		const std::string &uri,
 		std::string &document);
-	std::vector<std::pair<double, int> > query(std::string &queryStr);
+	std::vector<std::pair<int, double> > query(std::string &queryStr);
 
 private:
 	DB &db;

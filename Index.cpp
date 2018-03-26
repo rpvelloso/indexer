@@ -211,7 +211,7 @@ int Index::index(
 	return docId;
 }
 
-std::vector<std::pair<double, int> > Index::query(std::string &queryStr) {
+std::vector<std::pair<int, double> > Index::query(std::string &queryStr) {
 	preProcessString(queryStr);
 
 	std::stringstream ss(queryStr);
@@ -232,16 +232,16 @@ std::vector<std::pair<double, int> > Index::query(std::string &queryStr) {
 	auto qv = queryVector(n, wordIdList);
 
 	auto result = WordCount(db).listDocuments(wordIdList);
-	std::vector<std::pair<double, int> > resultSet;
+	std::vector<std::pair<int, double> > resultSet;
 	for (auto docId:result) {
 		auto dv = documentVector(n, docId);
 		auto score = cosineDistance(qv, dv);
-		resultSet.emplace_back(std::make_pair(score, docId));
+		resultSet.emplace_back(std::make_pair(docId, score));
 	}
 
 	std::sort(resultSet.begin(), resultSet.end(),
-		[](const std::pair<double, int> &a, const std::pair<double, int> &b){
-			return a.first > b.first;
+		[](const std::pair<int, double> &a, const std::pair<int, double> &b){
+			return a.second > b.second;
 		});
 
 	return resultSet;

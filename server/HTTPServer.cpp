@@ -12,7 +12,7 @@
 
 namespace idx {
 
-HTTPServer::HTTPServer() : server(makeServer()) {
+HTTPServer::HTTPServer() : server(makeServer()), services(2) {
 }
 
 bool HTTPServer::readline(std::istream &inp, std::string &line) {
@@ -29,29 +29,22 @@ bool HTTPServer::readline(std::istream &inp, std::string &line) {
 }
 
 void HTTPServer::start() {
-	registerService("/index", [](json &input, std::ostream& outp){
-		int j = 0;
-		for (auto &i:input["Perguntas"]) {
-			std::cout << ++j << ") " << i["Pergunta"] << " = " << i["Resposta"] << std::endl;
-		}
-	});
-
-	registerService("/query", [](json &input, std::ostream& outp){
-		std::cout << input["Pergunta"] << std::endl;
-	});
-
 	server.listen("0.0.0.0", "10000");
 }
 
 void HTTPServer::processRequest(HTTPClient& context, std::ostream& outp) {
-	outp << "*** requisicao recebida!" << std::endl;
-	context.printRequest();
+	//outp << "*** requisicao recebida!" << std::endl;
+	//context.printRequest();
 	context.parseHeaders(outp);
 }
 
-void HTTPServer::registerService(const std::string& uri,
+void HTTPServer::registerService(const std::string &methodStr, const std::string& uri,
 		ServiceFunction service) {
-	services[uri] = service;
+	auto method = methodStr2Enum(methodStr);
+	if (method != Method::Unknown)
+		services[(int)method][uri] = service;
+	else
+		throw std::runtime_error("Unkown method " + methodStr);
 }
 
 socks::Server HTTPServer::makeServer() {

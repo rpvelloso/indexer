@@ -10,6 +10,12 @@
 #include "server/HTTPClient.h"
 #include "server/json.hpp"
 
+static std::unordered_map<int, std::string> replyStr = {
+	{200, "OK"},
+	{404, "Not Found."}
+};
+
+
 using json = nlohmann::json;
 
 namespace idx {
@@ -40,28 +46,50 @@ const std::string& HTTPClient::getBody() const {
 
 void HTTPClient::parseHeaders(std::ostream& outp) {
 	if (headers.size() > 0) {
+		std::string methodStr;
 		std::stringstream ss(headers[0]);
 
-		ss >> method;
+		ss >> methodStr;
 		ss >> uri;
+		ss >> httpVersion;
 
-		if (method == "POST" && validURI()) {
+		method = methodStr2Enum(methodStr);
+
+
+		if (method != Method::Unknown && validURI()) {
 			if (services != nullptr) {
-				auto serviceIt = services->find(uri);
-				if (serviceIt != services->end()) {
+				auto serviceIt = (*services)[(int)method].find(uri);
+				if (serviceIt != (*services)[(int)method].end()) {
 					auto service = serviceIt->second;
 
 					json input = json::parse(body);
 
-					service(input, outp);
+					service(*this, input, outp);
+					return;
 				}
 			}
 		}
 	}
+	reply = HTTPReply::NOTFOUND;
+	outputResponse(outp);
 }
 
 void HTTPClient::setServices(Services& services) {
 	this->services = &services;
+}
+
+#define CRLF "\r\n"
+void HTTPClient::outputResponse(std::ostream& outp) {
+	outp << httpVersion << " " << (int)reply << " " << replyStr[(int)reply] << CRLF;
+	outp << "Content-length: " << response.size() << CRLF;
+	outp << "Content-type: application/json" << CRLF;
+	outp << "Connection: close" << CRLF;
+	outp << CRLF;
+	outp << response << std::endl;
+}
+
+void HTTPClient::setResponse(const std::string& resp) {
+	response = resp;
 }
 
 bool HTTPClient::validURI() { /* add more validation */

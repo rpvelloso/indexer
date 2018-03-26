@@ -15,6 +15,11 @@
 
 namespace idx {
 
+enum class HTTPReply {
+	OK = 200,
+	NOTFOUND = 404
+};
+
 class HTTPClient {
 public:
 	HTTPClient();
@@ -27,13 +32,18 @@ public:
 
 	void printRequest() const;
 	void setServices(Services &services);
+	void setResponse(const std::string &resp);
+	void outputResponse(std::ostream& outp);
 private:
 	Services *services;
 	std::vector<std::string> headers;
+	std::string httpVersion;
 	std::string body;
+	std::string response;
 	bool readingBody = false;
-	std::string method;
+	Method method;
 	std::string uri;
+	HTTPReply reply = HTTPReply::OK;
 
 	bool validURI();
 };

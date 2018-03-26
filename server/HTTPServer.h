@@ -23,7 +23,7 @@ public:
 	HTTPServer();
 	void start();
 
-	void registerService(const std::string &uri, ServiceFunction service);
+	void registerService(const std::string &methodStr, const std::string &uri, ServiceFunction service);
 private:
 	socks::Server server;
 	Services services;
