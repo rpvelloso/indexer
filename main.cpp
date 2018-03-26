@@ -27,20 +27,27 @@ int main (int argc, char **argv) {
 		int rc = 0;
 
 		try {
+			auto transaction = idx.getDB().startTransaction();
+
 			for (auto &i:input["Perguntas"]) {
 				std::string uri = i["Resposta"];
 				std::string document = i["Pergunta"];
 
 				auto id = idx.index(uri, document);
-				idList.push_back(id);
+				if (id > 0)
+					idList.push_back(id);
+				else
+					idList.push_back(-1);
 			}
+
+			transaction.commit();
 		} catch (...) {
 			rc = -1;
 		}
 
-		result["rc"] = rc;
+		result["ReturnCode"] = rc;
 		result["IDs"] = idList;
-		context.setResponse(result.dump(4));
+		context.setResponse(result.dump());
 		context.outputResponse(outp);
 	});
 
@@ -54,14 +61,19 @@ int main (int argc, char **argv) {
 
 			queryResults = idx.query(query);
 			for (auto &res:queryResults) {
-				json j = json{ {"id", res.first}, {"score", res.second} };
+				json j;
+				if (res.first > 0)
+					j = json{ {"id", res.first}, {"score", res.second} };
+				else
+					j = json{ {"id", -1}, {"score", -1} };
+
 				result["results"].push_back(j);
 			}
 		} catch (...) {
 			rc = -1;
 		}
-		result["rc"] = rc;
-		context.setResponse(result.dump(4));
+		result["ReturnCode"] = rc;
+		context.setResponse(result.dump());
 		context.outputResponse(outp);
 	});
 

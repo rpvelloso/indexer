@@ -69,6 +69,8 @@ void HTTPClient::parseHeaders(std::ostream& outp) {
 						reply = HTTPReply::OK;
 						json input = json::parse(body);
 
+						std::cout << input.dump() << std::endl;
+
 						service(*this, input, outp);
 						return;
 					} catch (...) {
@@ -93,6 +95,8 @@ void HTTPClient::outputResponse(std::ostream& outp) {
 	outp << "Connection: close" << CRLF;
 	outp << CRLF;
 	outp << response << std::endl;
+
+	std::cout << response << std::endl;
 }
 
 void HTTPClient::setResponse(const std::string& resp) {
