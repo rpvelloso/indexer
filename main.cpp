@@ -14,12 +14,13 @@
 int main (int argc, char **argv) {
 	std::string dbName = "tmp.db";
 	bool ddl = false;
-	idx::HTTPServer server;
 	if (!std::experimental::filesystem::exists(dbName))
 		ddl = true;
 
 	idx::DB db(dbName, ddl);
 	idx::Index idx(db);
+
+	idx::HTTPServer server;
 
 	server.registerService("POST", "/index", [&idx](idx::HTTPClient context, json &input, std::ostream& outp){
 		json result;
