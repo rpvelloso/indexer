@@ -34,6 +34,8 @@ void HTTPClient::setReadingBody(bool r) {
 }
 
 void HTTPClient::processRequest(std::ostream& outp) {
+	std::cerr << ">>> INPUT: " << std::endl << request.getBody() << std::endl;
+
 	response.setReply(HTTPReply::NotFound);
 
 	request.parseHeaders();
@@ -49,7 +51,7 @@ void HTTPClient::processRequest(std::ostream& outp) {
 				try {
 					json input = json::parse(request.getBody());
 
-					std::cerr << ">>> INPUT: " << std::endl << input.dump(2) << std::endl;
+					//std::cerr << ">>> INPUT: " << std::endl << input.dump(2) << std::endl;
 
 					service(*this, input);
 				} catch (...) {
