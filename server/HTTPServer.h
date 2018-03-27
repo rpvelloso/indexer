@@ -31,7 +31,6 @@ private:
 	void onReceive(socks::Context<HTTPClient> &ctx, std::istream &inp, std::ostream &outp);
 	void onConnect(socks::Context<HTTPClient> &ctx, std::istream &inp, std::ostream &outp);
 	static bool readline(std::istream &inp, std::string &line);
-	void processRequest(HTTPClient &context, std::ostream &outp);
 	socks::Server makeServer();
 };
 

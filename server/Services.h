@@ -36,7 +36,7 @@ inline Method methodStr2Enum(const std::string& methodStr) {
 
 class HTTPClient;
 
-using ServiceFunction = std::function<void(idx::HTTPClient &context, json &input, std::ostream& outp)>;
+using ServiceFunction = std::function<void(idx::HTTPClient &context, json &input)>;
 using Services = std::vector<std::unordered_map<std::string, ServiceFunction> >;
 
 }

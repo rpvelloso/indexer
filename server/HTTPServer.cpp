@@ -32,12 +32,6 @@ void HTTPServer::start() {
 	server.listen("0.0.0.0", "10000");
 }
 
-void HTTPServer::processRequest(HTTPClient& context, std::ostream& outp) {
-	//outp << "*** requisicao recebida!" << std::endl;
-	//context.printRequest();
-	context.parseHeaders(outp);
-}
-
 void HTTPServer::registerService(const std::string &methodStr, const std::string& uri,
 		ServiceFunction service) {
 	auto method = methodStr2Enum(methodStr);
@@ -71,16 +65,16 @@ void HTTPServer::onReceive(socks::Context<HTTPClient> &ctx, std::istream &inp, s
 
 			if (context.isReadingBody()) {
 				if (!line.empty())
-					context.appendBody(line);
+					context.getRequest().appendBody(line);
 			} else {
 				if (line.empty())
 					context.setReadingBody(true);
 				else {
-					context.addHeader(line);
+					context.getRequest().addHeader(line);
 				}
 			}
 		} else {
-			processRequest(context, outp);
+			context.processRequest(outp);
 			break;
 		}
 	}

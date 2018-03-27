@@ -22,7 +22,7 @@ int main (int argc, char **argv) {
 
 	idx::HTTPServer server;
 
-	server.registerService("POST", "/index", [&idx](idx::HTTPClient context, json &input, std::ostream& outp){
+	server.registerService("POST", "/index", [&idx](idx::HTTPClient &context, json &input){
 		json result;
 		std::vector<int> idList;
 		int rc = 0;
@@ -42,17 +42,18 @@ int main (int argc, char **argv) {
 			}
 
 			transaction.commit();
-		} catch (...) {
-			rc = -1;
-		}
 
-		result["ReturnCode"] = rc;
-		result["IDs"] = idList;
-		context.setResponse(result.dump());
-		context.outputResponse(outp);
+			result["ReturnCode"] = rc;
+			result["IDs"] = idList;
+
+			context.getResponse().appendBody(result.dump(2));
+			context.getResponse().setReply(idx::HTTPReply::OK);
+		} catch (...) {
+			context.getResponse().setReply(idx::HTTPReply::InternalServerError);
+		}
 	});
 
-	server.registerService("POST", "/query", [&idx](idx::HTTPClient context, json &input, std::ostream& outp){
+	server.registerService("POST", "/query", [&idx](idx::HTTPClient &context, json &input){
 		json result;
 		int rc = 0;
 		std::vector<std::pair<int, double> > queryResults;
@@ -70,12 +71,12 @@ int main (int argc, char **argv) {
 
 				result["results"].push_back(j);
 			}
+			result["ReturnCode"] = rc;
+			context.getResponse().appendBody(result.dump(2));
+			context.getResponse().setReply(idx::HTTPReply::OK);
 		} catch (...) {
-			rc = -1;
+			context.getResponse().setReply(idx::HTTPReply::InternalServerError);
 		}
-		result["ReturnCode"] = rc;
-		context.setResponse(result.dump());
-		context.outputResponse(outp);
 	});
 
 	server.start();

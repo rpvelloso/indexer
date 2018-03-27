@@ -10,22 +10,11 @@
 #include "server/HTTPClient.h"
 #include "server/json.hpp"
 
-static std::unordered_map<int, std::string> replyStr = {
-	{200, "OK"},
-	{404, "Not Found."},
-	{500, "Internal Server Error."}
-};
-
-
 using json = nlohmann::json;
 
 namespace idx {
 
 HTTPClient::HTTPClient() {
-}
-
-void HTTPClient::addHeader(const std::string& hdr) {
-	headers.emplace_back(hdr);
 }
 
 bool HTTPClient::isReadingBody() {
@@ -36,50 +25,32 @@ void HTTPClient::setReadingBody(bool r) {
 	readingBody = r;
 }
 
-void HTTPClient::appendBody(const std::string& b) {
-	body.append(b.begin(), b.end());
-	body.push_back('\n');
-}
+void HTTPClient::processRequest(std::ostream& outp) {
+	response.setReply(HTTPReply::NotFound);
 
-const std::string& HTTPClient::getBody() const {
-	return body;
-}
+	request.parseHeaders();
+	response.setHTTPVersion(request.getHTTPVersion());
 
-void HTTPClient::parseHeaders(std::ostream& outp) {
-	reply = HTTPReply::NOTFOUND;
+	auto method = request.getMethod();
+	if (method != Method::Unknown && request.validURI()) {
+		if (services != nullptr) {
+			auto serviceIt = (*services)[(int)method].find(request.getURI());
+			if (serviceIt != (*services)[(int)method].end()) {
+				auto service = serviceIt->second;
 
-	if (headers.size() > 0) {
-		std::string methodStr;
-		std::stringstream ss(headers[0]);
+				try {
+					json input = json::parse(request.getBody());
 
-		ss >> methodStr;
-		ss >> uri;
-		ss >> httpVersion;
+					std::cerr << ">>> INPUT: " << std::endl << input.dump(2) << std::endl;
 
-		method = methodStr2Enum(methodStr);
-
-
-		if (method != Method::Unknown && validURI()) {
-			if (services != nullptr) {
-				auto serviceIt = (*services)[(int)method].find(uri);
-				if (serviceIt != (*services)[(int)method].end()) {
-					auto service = serviceIt->second;
-
-					try {
-						reply = HTTPReply::OK;
-						json input = json::parse(body);
-
-						std::cout << input.dump() << std::endl;
-
-						service(*this, input, outp);
-						return;
-					} catch (...) {
-						reply = HTTPReply::INTERNALSERVERERROR;
-					}
+					service(*this, input);
+				} catch (...) {
+					response.setReply(HTTPReply::InternalServerError);
 				}
 			}
 		}
 	}
+
 	outputResponse(outp);
 }
 
@@ -88,31 +59,23 @@ void HTTPClient::setServices(Services& services) {
 }
 
 #define CRLF "\r\n"
+
+HTTPRequest& HTTPClient::getRequest() {
+	return request;
+}
+
+HTTPResponse& HTTPClient::getResponse() {
+	return response;
+}
+
 void HTTPClient::outputResponse(std::ostream& outp) {
-	outp << httpVersion << " " << (int)reply << " " << replyStr[(int)reply] << CRLF;
-	outp << "Content-length: " << response.size() << CRLF;
-	outp << "Content-type: application/json" << CRLF;
-	outp << "Connection: close" << CRLF;
+	response.buildHeaders();
+	for (auto &hdr:response.getHeaders())
+		outp << hdr << CRLF;
 	outp << CRLF;
-	outp << response << std::endl;
+	outp << response.getBody() << std::endl;
 
-	std::cout << response << std::endl;
-}
-
-void HTTPClient::setResponse(const std::string& resp) {
-	response = resp;
-}
-
-bool HTTPClient::validURI() { /* add more validation */
-	return !uri.empty();
-}
-
-void HTTPClient::printRequest() const {
-	std::cout << "*** headers: " << std::endl;
-	for (auto &h:headers)
-		std::cout << h << std::endl;
-	std::cout << "*** body: " << std::endl;
-	std::cout << body << std::endl;
+	std::cerr << "<<< OUTPUT:" << std::endl << response.getBody() << std::endl;
 }
 
 } /* namespace idx */
