@@ -45,7 +45,7 @@ void HTTPResponse::buildHeaders() {
 		replyStr[(int)reply]);
 
 	headers.emplace_back("Content-length: " + std::to_string(body.size()));
-	headers.emplace_back("Content-type: application/json");
+	headers.emplace_back("Content-type: " + contentType);
 	headers.emplace_back("Connection: close");
 }
 
@@ -59,6 +59,14 @@ const std::string& HTTPResponse::getHTTPVersion() const {
 
 void HTTPResponse::setHTTPVersion(const std::string& httpVersion) {
 	this->httpVersion = httpVersion;
+}
+
+const std::string& HTTPResponse::getContentType() const {
+	return contentType;
+}
+
+void HTTPResponse::setContentType(const std::string& contentType) {
+	this->contentType = contentType;
 }
 
 } /* namespace idx */

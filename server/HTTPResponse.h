@@ -31,9 +31,12 @@ public:
 	const std::vector<std::string> &getHeaders() const;
 	const std::string& getHTTPVersion() const;
 	void setHTTPVersion(const std::string& httpVersion);
+	const std::string& getContentType() const;
+	void setContentType(const std::string& contentType);
 
 private:
 	std::string httpVersion;
+	std::string contentType = "application/json";
 	HTTPReply reply = HTTPReply::NotFound;
 	std::vector<std::string> headers;
 	std::string body;
