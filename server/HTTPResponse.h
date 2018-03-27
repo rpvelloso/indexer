@@ -19,7 +19,7 @@ enum class HTTPReply {
 	InternalServerError = 500
 };
 
-//TODO: build header lines from content variables, content-type, etc
+//TODO: add more options: content-type, etc
 class HTTPResponse {
 public:
 	HTTPResponse();

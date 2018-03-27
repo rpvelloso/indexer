@@ -17,8 +17,6 @@
 
 namespace idx {
 
-//TODO: create request & response objects, pass them to the service callback
-
 class HTTPClient {
 public:
 	HTTPClient();
