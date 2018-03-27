@@ -84,7 +84,8 @@ std::vector<std::pair<int, int> > Word::list(const std::vector<int> &wordIdList)
 		selectSQL += delim + std::to_string(wid);
 		delim = comma;
 	}
-	auto resultList = db.impl.createQuery("select id, df from word where id in (" + selectSQL + ");").getResult();
+	auto resultList = db.impl.createQuery("select id, df from word "
+			"where df > 0 and id in (" + selectSQL + ");").getResult();
 	std::vector<std::pair<int, int> > result;
 	while (resultList.next()) {
 		int id, df;

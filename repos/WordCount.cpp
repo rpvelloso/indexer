@@ -43,7 +43,8 @@ std::vector<std::tuple<int, int, int> > WordCount::list(int docId) {
 	auto resultList = db.impl.createQuery(R"*(
 		select w.id, wc.count, w.df 
 		from wordcount wc, word w 
-		where wc.word     = w.id 
+		where wc.word     = w.id
+          and wc.count > 0 
 		  and wc.document = ?)*",
 	docId).getResult();
 

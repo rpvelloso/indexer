@@ -16,6 +16,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 #include "repos/Document.h"
 #include "repos/Word.h"
