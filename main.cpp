@@ -18,23 +18,23 @@ int main (int argc, char **argv) {
 		ddl = true;
 
 	idx::DB db(dbName, ddl);
-	idx::Index idx(db);
+	idx::Index index(db);
 
 	idx::HTTPServer server;
 
-	server.registerService("POST", "/index", [&idx](idx::HTTPClient &context, json &input){
+	server.registerService("POST", "/index", [&index](idx::HTTPClient &context, json &input){
 		json result;
 		std::vector<int> idList;
 		int rc = 0;
 
 		try {
-			auto transaction = idx.getDB().startTransaction();
+			auto transaction = index.getDB().startTransaction();
 
 			for (auto &i:input["Perguntas"]) {
 				std::string uri = i["Resposta"];
 				std::string document = i["Pergunta"];
 
-				auto id = idx.index(uri, document);
+				auto id = index.index(uri, document);
 				if (id > 0)
 					idList.push_back(id);
 				else
@@ -53,7 +53,7 @@ int main (int argc, char **argv) {
 		}
 	});
 
-	server.registerService("POST", "/query", [&idx](idx::HTTPClient &context, json &input){
+	server.registerService("POST", "/query", [&index](idx::HTTPClient &context, json &input){
 		json result;
 		int rc = 0;
 		std::vector<std::pair<int, double> > queryResults;
@@ -61,7 +61,7 @@ int main (int argc, char **argv) {
 			result["results"] = json::array();
 			std::string query = input["Pergunta"];
 
-			queryResults = idx.query(query);
+			queryResults = index.query(query);
 			for (auto &res:queryResults) {
 				json j;
 				if (res.first > 0)
