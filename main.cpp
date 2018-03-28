@@ -97,12 +97,12 @@ int main (int argc, char **argv) {
 
 			transaction.commit();
 
-			result["ReturnCode"] = 0;
+			result["returnCode"] = 0;
 			result["IDs"] = idList;
 
 			context.getResponse().setReply(idx::HTTPReply::OK);
 		} catch (...) {
-			result["ReturnCode"] = -1;
+			result["returnCode"] = -1;
 			context.getResponse().setReply(idx::HTTPReply::InternalServerError);
 		}
 		context.getResponse().appendBody(result.dump(2));
@@ -127,10 +127,10 @@ int main (int argc, char **argv) {
 
 				result["results"].push_back(j);
 			}
-			result["ReturnCode"] = 0;
+			result["returnCode"] = 0;
 			context.getResponse().setReply(idx::HTTPReply::OK);
 		} catch (...) {
-			result["ReturnCode"] = -1;
+			result["returnCode"] = -1;
 			context.getResponse().setReply(idx::HTTPReply::InternalServerError);
 		}
 		context.getResponse().appendBody(result.dump(2));
