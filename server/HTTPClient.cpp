@@ -14,9 +14,25 @@
  */
 
 #include <iostream>
+#include <ctime>
 
 #include "server/HTTPClient.h"
 #include "server/json.hpp"
+
+struct InfoDisplay {
+	template<class T>
+	std::ostream &operator<<(const T &p) {
+		auto time_now = std::time(nullptr);
+
+		return (
+		std::cout << std::put_time(std::localtime(&time_now), "%Y-%m-%d %H:%M:%S")
+		<< " [INFO] " << p);
+	}
+};
+
+static InfoDisplay infoDisplay;
+
+#define INFO std::cout <<
 
 using json = nlohmann::json;
 
@@ -34,7 +50,8 @@ void HTTPClient::setReadingBody(bool r) {
 }
 
 void HTTPClient::processRequest(std::ostream& outp) {
-	std::cerr << ">>> INPUT: " << std::endl << request.getBody() << std::endl;
+	if (verbose)
+		infoDisplay << ">>> INPUT: " << std::endl << request.getBody() << std::endl;
 
 	response.setReply(HTTPReply::NotFound);
 
@@ -85,7 +102,16 @@ void HTTPClient::outputResponse(std::ostream& outp) {
 	outp << CRLF;
 	outp << response.getBody() << std::endl;
 
-	std::cerr << "<<< OUTPUT:" << std::endl << response.getBody() << std::endl;
+	if (verbose)
+		infoDisplay << "<<< OUTPUT:" << std::endl << response.getBody() << std::endl;
+}
+
+bool HTTPClient::isVerbose() const {
+	return verbose;
+}
+
+void HTTPClient::setVerbose(bool verbose) {
+	this->verbose = verbose;
 }
 
 } /* namespace idx */

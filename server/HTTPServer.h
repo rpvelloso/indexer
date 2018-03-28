@@ -28,13 +28,17 @@ namespace idx {
 
 class HTTPServer {
 public:
-	HTTPServer();
-	void start();
+	HTTPServer(bool verbose = false);
+	void start(const std::string &host, const std::string &port);
 
 	void registerService(const std::string &methodStr, const std::string &uri, ServiceFunction service);
+	bool isVerbose() const;
+	void setVerbose(bool verbose);
+
 private:
 	socks::Server server;
 	Services services;
+	bool verbose;
 
 	void onReceive(socks::Context<HTTPClient> &ctx, std::istream &inp, std::ostream &outp);
 	void onConnect(socks::Context<HTTPClient> &ctx, std::istream &inp, std::ostream &outp);

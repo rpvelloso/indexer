@@ -20,13 +20,53 @@
 #include <limits>
 #include <algorithm>
 #include <experimental/filesystem>
+#include <getopt.h>
 
 #include "server/HTTPServer.h"
 #include "db/DB.h"
 
 #include "Index.h"
 
+void usage(const std::string &prog) {
+	std::cerr << prog << " [-p port] [-v]" << std::endl;
+	std::cerr << "-p port number. Default: 10000." << std::endl;
+	std::cerr << "-v enables verbose output. Default off." << std::endl;
+	std::cerr << "ex.: " << prog << " -p 8080 -v" << std::endl;
+}
+
+struct Options {
+	std::string port = "10000";
+	bool verbose = false;
+	bool exit = false;
+};
+
+Options parseOptions(int argc, char **argv) {
+	Options options;
+	int c;
+	while ((c = getopt(argc, argv, "vhp:")) != -1) {
+		switch (c) {
+		case 'p':
+			options.port = optarg;
+			break;
+		case 'v':
+			options.verbose = true;
+			break;
+		case 'h':
+		default:
+			usage(argv[0]);
+			options.exit = true;
+		}
+	}
+
+	return options;
+}
+
 int main (int argc, char **argv) {
+	auto options = parseOptions(argc, argv);
+
+	if (options.exit)
+		return 0;
+
 	std::string dbName = "tmp.db";
 	bool ddl = false;
 	if (!std::experimental::filesystem::exists(dbName))
@@ -35,7 +75,7 @@ int main (int argc, char **argv) {
 	idx::DB db(dbName, ddl);
 	idx::Index index(db);
 
-	idx::HTTPServer server;
+	idx::HTTPServer server(options.verbose);
 
 	server.registerService("POST", "/index", [&index](idx::HTTPClient &context, json &input){
 		json result;
@@ -96,6 +136,6 @@ int main (int argc, char **argv) {
 		context.getResponse().appendBody(result.dump(2));
 	});
 
-	server.start();
+	server.start("0.0.0.0", options.port);
 	return 0;
 }

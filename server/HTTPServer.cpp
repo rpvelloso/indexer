@@ -20,14 +20,16 @@
 
 namespace idx {
 
-HTTPServer::HTTPServer() : server(makeServer()), services(2) {
+HTTPServer::HTTPServer(bool verbose) :
+	server(makeServer()),
+	services(2),
+	verbose(verbose) {
 }
 
 bool HTTPServer::readline(std::istream &inp, std::string &line) {
 
 	auto savePos = inp.tellg();
 	std::getline(inp, line);
-	//std::cout << (bool)inp << " " << inp.eof() << "" << line << std::endl;
 	if (inp)
 		return true;
 	else
@@ -36,8 +38,8 @@ bool HTTPServer::readline(std::istream &inp, std::string &line) {
 	return false;
 }
 
-void HTTPServer::start() {
-	server.listen("0.0.0.0", "10000");
+void HTTPServer::start(const std::string &host, const std::string &port) {
+	server.listen(host, port);
 }
 
 void HTTPServer::registerService(const std::string &methodStr, const std::string& uri,
@@ -92,6 +94,15 @@ void HTTPServer::onConnect(socks::Context<HTTPClient> &ctx, std::istream &inp, s
 	HTTPClient &context = ctx.getContext();
 
 	context.setServices(services);
+	context.setVerbose(verbose);
+}
+
+bool HTTPServer::isVerbose() const {
+	return verbose;
+}
+
+void HTTPServer::setVerbose(bool verbose) {
+	this->verbose = verbose;
 }
 
 } /* namespace idx */

@@ -34,12 +34,15 @@ public:
 	HTTPResponse &getResponse();
 	void processRequest(std::ostream& outp);
 	void setServices(Services &services);
+	bool isVerbose() const;
+	void setVerbose(bool verbose);
 
 private:
 	Services *services = nullptr;
 	HTTPRequest request;
 	HTTPResponse response;
 	bool readingBody = false;
+	bool verbose = false;
 
 	void outputResponse(std::ostream& outp);
 };
