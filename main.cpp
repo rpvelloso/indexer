@@ -43,7 +43,7 @@ struct Options {
 Options parseOptions(int argc, char **argv) {
 	Options options;
 	int c;
-	while ((c = getopt(argc, argv, "vhp:")) != -1) {
+	while ((c = getopt(argc, argv, "vhp:")) != -1 && !options.exit) {
 		switch (c) {
 		case 'p':
 			options.port = optarg;
