@@ -14,6 +14,7 @@
  */
 
 #include "DB.h"
+#include "db/transaction/SQLiteTransaction.h"
 
 namespace idx {
 
@@ -25,7 +26,7 @@ DB::DB(const std::string &dbName, bool ddl) :
 }
 
 DBTransaction DB::startTransaction() {
-	return impl.startTransaction();
+	return DBTransaction(new SQLiteTransaction(impl.startTransaction()));
 }
 
 void DB::DDL() {

@@ -17,11 +17,11 @@
 
 namespace idx {
 
-DBTransaction::DBTransaction(SQLiteTransationGuard tr) : tr(std::move(tr)) {
+DBTransaction::DBTransaction(DBTransactionImpl *impl) : impl(impl) {
 }
 
 void DBTransaction::commit() {
-	tr.commit();
+	impl->commit();
 }
 
 } /* namespace idx */

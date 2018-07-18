@@ -1,18 +1,3 @@
-/*
-    Copyright 2018 Roberto Panerai Velloso.
-    This file is part of indexer.
-    Indexer is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-    Indexer is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License
-    along with Indexer.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #ifndef SQLITE_CPP_H_
 #define SQLITE_CPP_H_
 
@@ -29,7 +14,7 @@ inline void closeDB(sqlite3 *h) {
 }
 
 class SQLiteQuery;
-class SQLiteTransationGuard;
+class SQLiteTransactionGuard;
 
 class SQLiteDB {
 friend class SQLiteQuery;
@@ -49,7 +34,7 @@ public:
 	template<class ... Types>
 	SQLiteQuery createQuery(const std::string &queryString, const Types& ... values);
 	SQLiteQuery createQuery(const std::string &queryString);
-	SQLiteTransationGuard startTransaction();
+	SQLiteTransactionGuard startTransaction();
 
 	sqlite3_int64 lastInsertRowID() {
 		return sqlite3_last_insert_rowid(dbHandle.get());
@@ -192,13 +177,13 @@ inline SQLiteQuery SQLiteDB::createQuery(const std::string &queryString) {
 	return SQLiteQuery(*this, queryString);
 }
 
-class SQLiteTransationGuard {
+class SQLiteTransactionGuard {
 public:
-	SQLiteTransationGuard(SQLiteDB &db) : db(db) {
+	SQLiteTransactionGuard(SQLiteDB &db) : db(db) {
 		db.createQuery("BEGIN TRANSACTION;").execute();
 	};
 
-	SQLiteTransationGuard(SQLiteTransationGuard &&rhs) : db(rhs.db) {
+	SQLiteTransactionGuard(SQLiteTransactionGuard &&rhs) : db(rhs.db) {
 		rhs.commited = true; // to prevent rollback when destroying moved object
 	};
 
@@ -207,18 +192,18 @@ public:
 		commited = true;
 	};
 
-	~SQLiteTransationGuard() {
+	~SQLiteTransactionGuard() {
 		if (!commited)
 			db.createQuery("ROLLBACK;").execute();
 	}
 private:
 	bool commited = false;
 	SQLiteDB &db;
-	SQLiteTransationGuard(SQLiteTransationGuard &) = delete;
+	SQLiteTransactionGuard(SQLiteTransactionGuard &) = delete;
 };
 
-inline SQLiteTransationGuard SQLiteDB::startTransaction() {
-	return SQLiteTransationGuard(*this);
+inline SQLiteTransactionGuard SQLiteDB::startTransaction() {
+	return SQLiteTransactionGuard(*this);
 };
 
 template<class T>

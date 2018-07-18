@@ -21,8 +21,7 @@
 #include "repos/Document.h"
 #include "repos/Word.h"
 #include "repos/WordCount.h"
-
-#include "DBTransaction.h"
+#include "db/transaction/DBTransaction.h"
 
 namespace idx {
 

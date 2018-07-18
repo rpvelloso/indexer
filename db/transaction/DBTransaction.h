@@ -16,16 +16,17 @@
 #ifndef DBTRANSACTION_H_
 #define DBTRANSACTION_H_
 
-#include "sqlite.c++.h"
+#include "db/sqlite.c++.h"
+#include "db/transaction/DBTransactionImpl.h"
 
 namespace idx {
 
 class DBTransaction {
 public:
-	DBTransaction(SQLiteTransationGuard tr);
+	DBTransaction(DBTransactionImpl *impl);
 	void commit();
 private:
-	SQLiteTransationGuard tr;
+	std::unique_ptr<DBTransactionImpl> impl;
 };
 
 } /* namespace idx */
