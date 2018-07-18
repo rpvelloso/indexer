@@ -22,7 +22,7 @@
 #include <experimental/filesystem>
 #include <getopt.h>
 
-#include "server/HTTPServer.h"
+#include "HTTPServer.h"
 #include "db/DB.h"
 
 #include "Index.h"
