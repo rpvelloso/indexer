@@ -25,6 +25,7 @@ class DBTransaction {
 public:
 	DBTransaction(DBTransactionImpl *impl);
 	void commit();
+	void rollback();
 private:
 	std::unique_ptr<DBTransactionImpl> impl;
 };

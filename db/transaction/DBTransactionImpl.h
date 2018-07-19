@@ -15,6 +15,7 @@ public:
 	DBTransactionImpl();
 	virtual ~DBTransactionImpl();
 	virtual void commit() = 0;
+	virtual void rollback() = 0;
 };
 
 } /* namespace idx */

@@ -18,6 +18,7 @@ public:
 	SQLiteTransaction(SQLiteTransactionGuard tr);
 	virtual ~SQLiteTransaction();
 	virtual void commit() override;
+	virtual void rollback() override;
 private:
 	SQLiteTransactionGuard tr;
 };

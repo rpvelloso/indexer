@@ -19,4 +19,8 @@ void SQLiteTransaction::commit() {
 	tr.commit();
 }
 
+void SQLiteTransaction::rollback() {
+	tr.rollback();
+}
+
 } /* namespace idx */

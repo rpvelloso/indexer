@@ -24,4 +24,8 @@ void DBTransaction::commit() {
 	impl->commit();
 }
 
+void DBTransaction::rollback() {
+	impl->rollback();
+}
+
 } /* namespace idx */
